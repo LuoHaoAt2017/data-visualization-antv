@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server",
-    "build": "webpack",
+    "build": "webpack --color --progress",
     "commit": "git add . && git-cz"
   },
   "repository": {
@@ -25,7 +25,10 @@
   "devDependencies": {
     "@commitlint/cli": "^13.1.0",
     "@commitlint/config-conventional": "^13.1.0",
+    "@types/jquery": "^3.5.9",
     "babel-loader": "^8.2.3",
+    "copy-webpack-plugin": "^10.0.0",
+    "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^7.0.2",
     "jest": "^27.3.1",

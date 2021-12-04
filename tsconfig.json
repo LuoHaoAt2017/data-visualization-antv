@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "allowJs": false
+  },
+  "files": [
+    "src/main.ts"
+  ],
+  "include": [
+    "libs/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    // "libs/**/*.ts"
+  ]
+}
