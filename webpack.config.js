@@ -21,7 +21,7 @@ module.exports = {
         loader: 'ts-loader'
       },
       {
-        test: /\.(jpg|png)$/,
+        test: /\.(jpg|png|svg)$/,
         loader: 'file-loader'
       }
     ]
@@ -29,7 +29,8 @@ module.exports = {
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src')
-    }
+    },
+    extensions: ['.js', '.ts'],
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -37,14 +38,14 @@ module.exports = {
       template: path.resolve(__dirname, 'public/index.html'),
       // favicon: path.resolve(__dirname, 'public/favicon.ico'),
     }),
-  new CopyWebpackPlugin({
-    patterns: [
-      {
-        from: 'src/assets',
-        to: 'assets'
-      }
-    ]
-  })
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/assets',
+          to: 'assets'
+        }
+      ]
+    })
   ],
   devServer: {
     port: 8090,
