@@ -1,5 +1,5 @@
 import { Chart } from "@antv/g2";
-import { Level } from "./helper";
+import { Level } from "../helper";
 $(function () {
   const chart = new Chart({
     container: "app",
