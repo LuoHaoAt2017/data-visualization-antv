@@ -36,7 +36,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: '培养可视化思维',
       template: path.resolve(__dirname, 'public/index.html'),
-      // favicon: path.resolve(__dirname, 'public/favicon.ico'),
+      favicon: path.resolve(__dirname, 'public/favicon.ico'),
     }),
     new CopyWebpackPlugin({
       patterns: [

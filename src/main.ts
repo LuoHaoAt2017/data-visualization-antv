@@ -1,4 +1,4 @@
-import { Graph } from "@antv/x6";
+import { DataUri, Graph } from "@antv/x6";
 $(function() {
   const $root = $('<div id="container">hello world</div>');
   $root.css({
@@ -54,6 +54,7 @@ $(function() {
 
   const edges = [
     {
+      id: "edge1",
       source: "node1",
       target: "node2",
       attrs: {
@@ -74,6 +75,15 @@ $(function() {
     grid: {
       size: 20, // 网格大小
       visible: true
+    },
+    panning: {
+      enabled: true,
+      // modifiers: "shift",
+      eventTypes: ["leftMouseDown"]
+    },
+    mousewheel: {
+      enabled: true,
+      modifiers: "ctrl"
     }
   });
 
@@ -82,6 +92,30 @@ $(function() {
     edges: edges
   });
 
-  canvas.zoom(0.5);
-  canvas.translate(80, 40);
+  // canvas.zoom(0.5);
+  // canvas.translate(80, 40);
+  canvas.centerContent();
+  // canvas.toSVG(function(dataUri: string) {
+  //   DataUri.downloadDataUri(DataUri.svgToDataUrl(dataUri), 'chart.svg');
+  // });
+  // canvas.toPNG(function(dataUri: string) {
+  //   DataUri.downloadDataUri(dataUri, 'chart.png');
+  // }, {
+  //   preserveDimensions: true,
+  //   backgroundColor: '#fffbe6',
+  //   viewBox: {
+  //     x: 0,
+  //     y: 0,
+  //     width: 800,
+  //     height: 600
+  //   },
+  //   copyStyles: false,
+  //   quality: 0.98
+  //   // padding: {
+  //   //   top: 20,
+  //   //   right: 30,
+  //   //   bottom: 40,
+  //   //   left: 50,
+  //   // }
+  // });
 });
