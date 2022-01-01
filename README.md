@@ -1,4 +1,4 @@
-# data-visualization
+# data-visualization-antv
 基于太阳系行星系统的数据可视化
 
 太阳系有八颗行星
