@@ -1,19 +1,37 @@
 {
   "compilerOptions": {
-    "allowJs": false,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "importHelpers": true,
+    "jsx": "react-jsx",
     "esModuleInterop": true,
-    // "module": "ES2015",
-    // "target": "ES5"
+    "sourceMap": true,
+    "baseUrl": "./",
+    "strict": true,
+    "paths": {
+      "@/*": ["src/*"],
+      "@@/*": ["src/.umi/*"]
+    },
+    "allowSyntheticDefaultImports": true
   },
-  // "files": [
-  //   "src/main.ts"
-  // ],
   "include": [
-    "libs/**/*.ts",
-    "src/**/*.ts"
+    "mock/**/*",
+    "src/**/*",
+    "config/**/*",
+    ".umirc.ts",
+    "typings.d.ts"
   ],
   "exclude": [
     "node_modules",
-    // "libs/**/*.ts"
+    "lib",
+    "es",
+    "dist",
+    "typings",
+    "**/__test__",
+    "test",
+    "docs",
+    "tests"
   ]
 }
