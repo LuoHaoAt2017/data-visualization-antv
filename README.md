@@ -1,9 +1,15 @@
-# data-visualization
-基于太阳系行星系统的数据可视化
+# umi project
 
-太阳系有八颗行星
-四颗是类地行星
-四颗是巨行星
-类地行星距离太阳比较近，接受的光照比较足，呈暖色调。
-巨行星距离太阳比较远，接受的光照相对较少，呈冷色调。
+## Getting Started
 
+Install dependencies,
+
+```bash
+$ yarn
+```
+
+Start the dev server,
+
+```bash
+$ yarn start
+```
