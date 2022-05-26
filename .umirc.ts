@@ -2,6 +2,7 @@ import { defineConfig } from 'umi';
 
 export default defineConfig({
   title: 'The Grammar of Graphics',
+  favicon: '/favicon.png',
   routes: [
     {
       path: '/',
@@ -10,31 +11,37 @@ export default defineConfig({
         {
           path: '/home',
           component: '@/pages/home',
-          name: 'L00000',
+          name: 'Mesg00000',
         },
         {
           path: '/grammar',
           component: '@/pages/grammar',
-          name: 'L00001',
-        },
-        {
-          path: '/parts',
-          component: '@/pages/parts',
-          name: 'L00002',
+          name: 'Mesg00001',
         },
         {
           path: '/geometry',
           component: '@/pages/geometry',
-          name: 'L00003',
+          name: 'Mesg00003',
         },
         {
-          path: '/workers',
-          component: '@/pages/works',
-          name: 'L00004',
+          path: '/g2',
+          component: '@/pages/g2/index',
+          routes: [
+            {
+              path: 'stack-histogram',
+              component: '@/pages/g2/stack-histogram',
+              name: 'Mesg00004',
+            },
+            {
+              path: 'custom-shape',
+              component: '@/pages/g2/custom-shape',
+              name: 'Mesg00005',
+            },
+          ],
         },
         {
           path: '/',
-          redirect: '/workers',
+          redirect: '/g2',
         },
       ],
     },
@@ -42,10 +49,11 @@ export default defineConfig({
   locale: {
     antd: true,
   },
-  request: {
-    dataField: 'data',
+  history: {
+    type: 'browser',
   },
-  mock: {
-    
-  }
+  mock: {},
+  devServer: {
+    port: 9000,
+  },
 });

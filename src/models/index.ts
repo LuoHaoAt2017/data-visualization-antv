@@ -1,35 +1,27 @@
-import { GetWorkers } from '@/services';
-
-interface Action {
-  type: string;
-  payload: any;
-}
+import { GetDutyList } from '@/services';
 
 export default {
-  namespace: 'WorkerModel',
+  namespace: 'DutyModel',
   state: {
-    workers: []
+    dutyList: [],
   },
   reducers: {
     updateList(state, action) {
       return {
         ...state,
-        workers: action.payload
-      }
+        dutyList: action.payload,
+      };
     },
   },
   effects: {
-    *searchList(action, { put, call } ) {
+    *getDutyList({}, { put, call }) {
       try {
-        const resp = yield call(GetWorkers);
+        const resp = yield call(GetDutyList);
         yield put({
           type: 'updateList',
           payload: resp.data,
         });
-        if (action.callback) {
-          action.callback();
-        }
-      } catch(err) {
+      } catch (err) {
         console.error(err);
       }
     },
