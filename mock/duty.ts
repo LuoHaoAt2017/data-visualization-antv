@@ -1,4 +1,7 @@
 import Mock, { Random } from 'mockjs';
+import moment from 'moment';
+
+const Weeks = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
 Mock.Random.extend({
   uuid() {
@@ -20,13 +23,22 @@ Mock.Random.extend({
     return Random.guid();
   },
   dutyName() {
-    return Random.cname();
+    return Random.province();
   },
   dutyColor() {
     return Random.color();
   },
   dutyDate() {
     return Random.date();
+  },
+  dutyTime() {
+    const start = Random.date('yyyy-MM-dd HH:mm');
+    const duration = Math.floor(Math.random() * 10);
+    const end = moment(start).add(duration, 'hours');
+    return [moment(start).format('HH:mm'), moment(end).format('HH:mm')];
+  },
+  dutyWeek() {
+    return this.pick(Weeks);
   },
 });
 
@@ -69,7 +81,77 @@ export default {
             sun: '@dutyItem',
           },
         ],
-      }).list,
+      }).list.map((elem) => ({
+        key: elem.key,
+        userId: elem.userId,
+        userName: elem.userName,
+        spelling: elem.spelling,
+        userRank: elem.userRank,
+        mon: {
+          ...elem.mon,
+          dutyWeek: 'mon',
+          dutyTime: Mock.mock(
+            {
+              dutyTime: '@dutyTime',
+            }.dutyTime,
+          ),
+        },
+        tue: {
+          ...elem.tue,
+          dutyWeek: 'tue',
+          dutyTime: Mock.mock(
+            {
+              dutyTime: '@dutyTime',
+            }.dutyTime,
+          ),
+        },
+        wed: {
+          ...elem.wed,
+          dutyWeek: 'wed',
+          dutyTime: Mock.mock(
+            {
+              dutyTime: '@dutyTime',
+            }.dutyTime,
+          ),
+        },
+        thu: {
+          ...elem.thu,
+          dutyWeek: 'thu',
+          dutyTime: Mock.mock(
+            {
+              dutyTime: '@dutyTime',
+            }.dutyTime,
+          ),
+        },
+        fri: {
+          ...elem.fri,
+          dutyWeek: 'fri',
+          dutyTime: Mock.mock(
+            {
+              dutyTime: '@dutyTime',
+            }.dutyTime,
+          ),
+        },
+        sat: {
+          ...elem.sat,
+          dutyWeek: 'sat',
+          dutyTime: Mock.mock(
+            {
+              dutyTime: '@dutyTime',
+            }.dutyTime,
+          ),
+        },
+        sun: {
+          ...elem.mon,
+          dutyWeek: 'sun',
+          dutyTime: Mock.mock(
+            {
+              dutyTime: '@dutyTime',
+            }.dutyTime,
+          ),
+        },
+      })),
+      status: 200,
     });
   },
 };
