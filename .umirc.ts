@@ -37,6 +37,11 @@ export default defineConfig({
               component: '@/pages/g2plot/custom-shape',
               name: 'Mesg00005',
             },
+            {
+              path: 'hill-shape',
+              component: '@/pages/g2plot/hill-shape',
+              name: 'Mesg00006',
+            },
           ],
         },
         {

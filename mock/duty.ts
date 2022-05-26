@@ -43,7 +43,7 @@ Mock.Random.extend({
 });
 
 const DutyList = Mock.mock({
-  'list|9': [
+  'list|1': [
     {
       dutyRefid: '@dutyRefid',
       dutyTitle: '@dutyTitle',
@@ -53,9 +53,6 @@ const DutyList = Mock.mock({
 }).list;
 
 Mock.Random.extend({
-  dutyIndex() {
-    return Random.integer(1, 9);
-  },
   dutyItem() {
     return this.pick(DutyList);
   },
@@ -65,7 +62,7 @@ export default {
   'GET /api/dutys': (req, res) => {
     res.send({
       data: Mock.mock({
-        'list|100': [
+        'list|10': [
           {
             key: '@userId',
             userId: '@userId',

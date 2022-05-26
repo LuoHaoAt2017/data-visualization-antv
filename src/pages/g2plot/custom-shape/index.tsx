@@ -1,9 +1,12 @@
 import { useEffect } from 'react';
 import { connect } from 'dva';
 import { useDispatch } from 'umi';
-import { isObject, deepMix } from '@antv/util';
-import { P, G2 } from '@antv/g2plot';
-import { Weeks } from '@/utils/index';
+import { Chart, registerShape, registerTheme } from '@antv/g2';
+import moment from 'moment';
+
+import { Weeks, WeekLabel } from '@/utils/index';
+
+import styles from './index.less';
 
 interface Point {
   x: number;
@@ -11,7 +14,7 @@ interface Point {
 }
 
 // 自定义图形
-G2.registerShape('interval', 'hill', {
+registerShape('interval', 'duty', {
   draw(info, container) {
     const { style, defaultStyle = {} } = info;
     const points = info.points as Point[];
@@ -34,8 +37,92 @@ G2.registerShape('interval', 'hill', {
   },
 });
 
-const CustomShape = ({ dutyList }) => {
-  console.log('dutyList: ', dutyList);
+registerTheme('customTheme', {
+  defaultColor: 'black',
+});
+
+const DutyChart = ({ dutyList, dutyRefid }) => {
+  console.log('dutyList: ', dutyList, ' dutyRefid: ', dutyRefid);
+  useEffect(() => {
+    const chart = new Chart({
+      container: dutyRefid,
+      autoFit: true,
+      padding: [60, 60, 60, 80],
+      renderer: 'svg',
+      theme: 'customTheme',
+    });
+    chart
+      .interval({
+        sortable: true,
+        visible: true,
+      })
+      .position('dutyWeek*dutyCount')
+      .color('dutyWeek');
+    chart.axis('dutyWeek', {
+      label: {
+        formatter(text: string, item: any, index: number) {
+          return WeekLabel[text];
+        },
+        autoEllipsis: true,
+      },
+      tickLine: {
+        length: 0,
+        alignTick: false,
+      },
+      grid: {
+        line: {
+          type: 'line',
+          style: {
+            strokeOpacity: 0.25,
+          },
+        },
+        alignTick: false, // 是否同刻度线对齐，如果值为 false，则会显示在两个刻度中间。
+      },
+    });
+    chart.axis('dutyCount', {
+      position: 'right',
+      line: {
+        style: {
+          stroke: '#ccc',
+        },
+      },
+      tickLine: {
+        length: 0,
+        alignTick: true,
+      },
+      title: {
+        text: '小时',
+        position: 'end',
+        // offset: 10,
+        spacing: 10,
+      },
+      grid: {
+        line: {
+          style: {
+            opacity: 0,
+          },
+        },
+      },
+    });
+    chart.scale({
+      dutyCount: {
+        max: 24,
+        min: 0,
+        tickCount: 12,
+      },
+    });
+    chart.legend(false);
+    chart.interaction('element-active');
+    chart.coordinate().transpose();
+    chart.data(dutyList);
+    chart.render();
+  }, []);
+
+  return <div id={dutyRefid}></div>;
+};
+
+const CustomShape = ({ dutyGroup }) => {
+  console.log('dutyGroup: ', dutyGroup);
 
   const dispatch = useDispatch();
 
@@ -45,88 +132,18 @@ const CustomShape = ({ dutyList }) => {
     });
   }, []);
 
-  useEffect(() => {
-    // 1. 定义配置
-    const defaultOptions: any = {
-      columnWidthRatio: 1.2,
-    };
-
-    // 2. adaptor 实现
-    function adaptor(params) {
-      const { chart, options } = params;
-      const { data, xField, yField, columnWidthRatio, columnStyle, theme } =
-        options;
-
-      // 数据
-      chart.data(data);
-
-      // 几何图形
-      const i = chart
-        .interval()
-        .position(`${xField}*${yField}`)
-        .shape('hill')
-        .style(`${xField}*${yField}`, (x, y) => {
-          return typeof columnStyle === 'function'
-            ? columnStyle({ [xField]: x, [yField]: y })
-            : columnStyle;
-        });
-
-      // 设置重叠比率
-      chart.theme(
-        deepMix({}, isObject(theme) ? theme : G2.getTheme(theme), {
-          columnWidthRatio: columnWidthRatio,
-        }),
-      );
-
-      const gap = (1 / data.length / 2) * columnWidthRatio; // 左右预留
-      chart.scale({
-        genre: {
-          range: [gap, 1 - gap],
-        },
-      });
-
-      return params;
-    }
-
-    // 3. G2Plot 上使用
-    const data = [
-      { genre: 'Sports', sold: 275 },
-      { genre: 'Strategy', sold: 115 },
-      { genre: 'Action', sold: 120 },
-      { genre: 'Shooter', sold: 350 },
-      { genre: 'Other', sold: 150 },
-    ];
-
-    const hill = new P(
-      'container',
-      {
-        data,
-        appendPadding: 16,
-        meta: {
-          genre: {
-            alias: '游戏种类', // 列定义，定义该属性显示的别名
-          },
-          sold: {
-            alias: '销售量',
-          },
-        },
-        xField: 'genre',
-        yField: 'sold',
-        columnStyle: {
-          fillOpacity: 0.3,
-        },
-      },
-      adaptor,
-      defaultOptions,
-    ); // 引入上述的封装，或者将上述代码发包
-
-    hill.render();
-  }, []);
-
-  return <div id="container"></div>;
+  return (
+    <div className={styles.container}>
+      {Object.keys(dutyGroup).map((key) => (
+        <div id={key} key={key} className={styles.chart}>
+          <DutyChart dutyList={dutyGroup[key]} dutyRefid={key} />
+        </div>
+      ))}
+    </div>
+  );
 };
 
-function collectDutyByRefid(doctors) {
+function collect(doctors) {
   if (doctors.length === 0) {
     return [];
   }
@@ -161,7 +178,7 @@ function collectDutyByRefid(doctors) {
   return dutyMap;
 }
 
-function aggregateDuty(dutyMap) {
+function aggregate(dutyMap) {
   const targetData = {};
   Object.keys(dutyMap).forEach((dutyRefid) => {
     const dutyList = dutyMap[dutyRefid]; // 同一个班种不同时间段的排班
@@ -223,8 +240,99 @@ function aggregateDuty(dutyMap) {
   return targetData;
 }
 
+function betterAggregate(dutyMap) {
+  const targetData = {};
+  Object.keys(dutyMap).forEach((dutyRefid) => {
+    const dutyList = dutyMap[dutyRefid]; // 同一个班种不同时间段的排班
+    targetData[dutyRefid] = dutyList.reduce(
+      function (prev, curr) {
+        const dutyWeek = curr.dutyWeek;
+        const index = prev.findIndex((x) => x.dutyWeek === dutyWeek);
+        if (index > -1) {
+          prev[index].dutyRefid = curr.dutyRefid;
+          prev[index].dutyTitle = curr.dutyTitle;
+          prev[index].dutyColor = curr.dutyColor;
+          prev[index].dutyTimes.push(curr.dutyTime);
+          prev[index].dutyCount = Math.floor(Math.random() * 24);
+        }
+        return prev;
+      },
+      [
+        {
+          dutyWeek: 'mon',
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        {
+          dutyWeek: 'tue',
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        {
+          dutyWeek: 'wed',
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        {
+          dutyWeek: 'thu',
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        {
+          dutyWeek: 'fri',
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        {
+          dutyWeek: 'sat',
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        {
+          dutyWeek: 'sun',
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+      ],
+    );
+  });
+  return targetData;
+}
+
+function mergeInterval(intervals) {
+  intervals = intervals.filter((x) => moment(x[0]).isBefore(x[1]));
+  intervals.sort((a, b) => (moment(a[0]).isBefore(b[0]) ? -1 : 1));
+  let prev: any[] = intervals[0];
+  const result: any[] = [];
+  for (let i = 0; i < intervals.length; i++) {
+    const cur = intervals[i];
+    if (cur[0] > prev[1]) {
+      result.push(prev);
+      prev = cur;
+    } else {
+      prev[1] = moment(cur[1]).isAfter(prev[1]) ? cur[1] : prev[1];
+    }
+  }
+  result.push(prev);
+  return result;
+}
+
 export default connect(({ DutyModel }) => {
   return {
-    dutyList: aggregateDuty(collectDutyByRefid(DutyModel.dutyList)),
+    dutyGroup: betterAggregate(collect(DutyModel.dutyList)),
   };
 })(CustomShape);
