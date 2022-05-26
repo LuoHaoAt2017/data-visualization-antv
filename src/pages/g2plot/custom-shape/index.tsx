@@ -126,7 +126,7 @@ const CustomShape = ({ dutyList }) => {
   return <div id="container"></div>;
 };
 
-function collectDuty(doctors) {
+function collectDutyByRefid(doctors) {
   if (doctors.length === 0) {
     return [];
   }
@@ -157,11 +157,74 @@ function collectDuty(doctors) {
       console.log(err);
     }
   });
+
   return dutyMap;
+}
+
+function aggregateDuty(dutyMap) {
+  const targetData = {};
+  Object.keys(dutyMap).forEach((dutyRefid) => {
+    const dutyList = dutyMap[dutyRefid]; // 同一个班种不同时间段的排班
+    targetData[dutyRefid] = dutyList.reduce(
+      function (prev, curr) {
+        const dutyWeek = curr.dutyWeek;
+        prev[dutyWeek].dutyRefid = curr.dutyRefid;
+        prev[dutyWeek].dutyTitle = curr.dutyTitle;
+        prev[dutyWeek].dutyColor = curr.dutyColor;
+        prev[dutyWeek].dutyTimes.push(curr.dutyTime);
+        return prev;
+      },
+      {
+        mon: {
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        tue: {
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        wed: {
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        thu: {
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        fri: {
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        sat: {
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+        sun: {
+          dutyRefid: '',
+          dutyTitle: '',
+          dutyColor: '',
+          dutyTimes: [],
+        },
+      },
+    );
+  });
+  return targetData;
 }
 
 export default connect(({ DutyModel }) => {
   return {
-    dutyList: collectDuty(DutyModel.dutyList),
+    dutyList: aggregateDuty(collectDutyByRefid(DutyModel.dutyList)),
   };
 })(CustomShape);

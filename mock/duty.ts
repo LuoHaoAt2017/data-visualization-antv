@@ -22,7 +22,7 @@ Mock.Random.extend({
   dutyRefid() {
     return Random.guid();
   },
-  dutyName() {
+  dutyTitle() {
     return Random.province();
   },
   dutyColor() {
@@ -46,7 +46,7 @@ const DutyList = Mock.mock({
   'list|9': [
     {
       dutyRefid: '@dutyRefid',
-      dutyName: '@dutyName',
+      dutyTitle: '@dutyTitle',
       dutyColor: '@dutyColor',
     },
   ],
