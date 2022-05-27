@@ -24,29 +24,24 @@ export default defineConfig({
           name: 'Mesg00003',
         },
         {
-          path: '/g2plot',
-          component: '@/pages/g2plot/index',
+          path: '/g2',
+          component: '@/pages/g2/index',
           routes: [
             {
-              path: 'stack-histogram',
-              component: '@/pages/g2plot/stack-histogram',
-              name: 'Mesg00004',
-            },
-            {
               path: 'custom-shape',
-              component: '@/pages/g2plot/custom-shape',
+              component: '@/pages/g2/custom-shape',
               name: 'Mesg00005',
             },
             {
-              path: 'hill-shape',
-              component: '@/pages/g2plot/hill-shape',
-              name: 'Mesg00006',
+              path: 'stack-histogram',
+              component: '@/pages/g2/stack-histogram',
+              name: 'Mesg00004',
             },
           ],
         },
         {
           path: '/',
-          redirect: '/g2plot',
+          redirect: '/g2',
         },
       ],
     },

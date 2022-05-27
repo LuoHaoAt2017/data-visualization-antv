@@ -33,7 +33,7 @@ Mock.Random.extend({
   },
   dutyTime() {
     const start = Random.date('yyyy-MM-dd HH:mm');
-    const duration = Math.floor(Math.random() * 10);
+    const duration = Math.floor(Math.random() * 4);
     const end = moment(start).add(duration, 'hours');
     return [moment(start).format('HH:mm'), moment(end).format('HH:mm')];
   },
@@ -43,7 +43,7 @@ Mock.Random.extend({
 });
 
 const DutyList = Mock.mock({
-  'list|1': [
+  'list|10': [
     {
       dutyRefid: '@dutyRefid',
       dutyTitle: '@dutyTitle',
@@ -64,7 +64,7 @@ export default {
       data: Mock.mock({
         'list|10': [
           {
-            key: '@userId',
+            key: '@uuid',
             userId: '@userId',
             userName: '@userName',
             spelling: '@spelling',
