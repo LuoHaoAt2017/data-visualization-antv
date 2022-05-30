@@ -1,7 +1,5 @@
 .container {
   position: relative;
-  width: 800px;
-  height: 800px;
 }
 
 .annotation {
@@ -10,16 +8,38 @@
   left: 0;
   width: 100%;
   height: 100%;
+
   .annotation-item {
     position: absolute;
+  }
+
+  .annotation-text {
+    width: 100%;
+    display: inline-block;
+    text-align: center;
     padding: 0 4px;
     background: #fffbe6;
 
     font-size: 12px;
-    opacity: 0.8;
+    opacity: 1;
 
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+  }
+}
+
+.tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+
+  .tooltip-concent {
+    padding: 4px 8px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.25);
+    color: #ffffff;
   }
 }

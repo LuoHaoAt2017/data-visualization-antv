@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { connect } from 'dva';
 import { useDispatch } from 'umi';
 import { Chart, registerShape } from '@antv/g2';
@@ -7,14 +8,22 @@ import { Tooltip } from 'antd';
 import { ceil } from 'lodash';
 import moment from 'moment';
 import { Weeks, WeekLabel } from '@/utils/index';
+import InfoIcon from '@/assets/svg/info.svg';
 
 import './index.less';
+import e from '@umijs/deps/compiled/express';
 
 const format = 'HH:mm';
 
 const chartW = 800;
-const chartH = 800;
+const chartH = 420;
 const radius = 24;
+const IdleColor = '#EDEFF1';
+const MinutesPerHour = 60;
+const PaddingTop = 60;
+const PaddingRight = 20;
+const PaddingBottom = 0;
+const PaddingLeft = 60;
 
 interface Point {
   x: number;
@@ -24,14 +33,14 @@ interface Point {
 function getAxisX(dutyTime): number {
   const hours = moment(dutyTime, format).hours();
   const minutes = moment(dutyTime, format).minutes();
-  const width = 800 - 120;
-  return ceil(((hours + minutes / 60) / 24) * width, 4);
+  const width = chartW - PaddingLeft - PaddingRight;
+  return ceil(((hours + minutes / MinutesPerHour) / 24) * width, 4);
 }
 
 function getAxisY(dutyTime): number {
   const hours = moment(dutyTime, format).hours();
   const minutes = moment(dutyTime, format).minutes();
-  return ceil((hours + minutes / 60) / 24, 4);
+  return ceil((hours + minutes / MinutesPerHour) / 24, 4);
 }
 
 function mergeInterval(intervals: [string, string][]) {
@@ -81,7 +90,7 @@ function getIdleTimes(intervals: [string, string][]) {
 // 自定义图形
 registerShape('interval', 'duty', {
   draw(info: any, container: IGroup) {
-    const { style, defaultStyle = {} } = info;
+    // svg | canvas
     const points = info.points as Point[];
     let path = [
       ['M', points[0].x, points[0].y],
@@ -109,7 +118,6 @@ registerShape('interval', 'duty', {
         id: 'custom-bar-path',
         attrs: {
           path,
-          ...defaultStyle,
           fill: dutyColor,
           fillOpacity: 0.5,
         },
@@ -129,11 +137,42 @@ registerShape('interval', 'duty', {
       container.addShape('path', {
         attrs: {
           path,
-          ...defaultStyle,
-          fill: '#cccccc',
-          fillOpacity: 0.25,
+          fill: IdleColor,
+          fillOpacity: 1.0,
         },
       });
+      if (finish - start > 0.05) {
+        container
+          .addShape('image', {
+            attrs: {
+              x:
+                PaddingLeft +
+                ((finish + start) / 2) * (chartW - PaddingLeft - PaddingRight) -
+                radius / 2,
+              y: info.y - radius / 2,
+              width: radius,
+              height: radius,
+              img: InfoIcon,
+            },
+          })
+          .on('mouseover', function (evt) {
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip) {
+              tooltip.style.top = evt.y - 20 + 'px';
+              tooltip.style.left = evt.x + 20 + 'px';
+              ReactDOM.render(
+                <div className="tooltip-concent">当前时段暂无排班</div>,
+                tooltip,
+              );
+            }
+          })
+          .on('mouseout', function (evt) {
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip) {
+              ReactDOM.render(<></>, document.getElementById('tooltip'));
+            }
+          });
+      }
     });
     return container;
   },
@@ -151,25 +190,37 @@ const AfterRender = ({ dutyList }) => {
   useEffect(() => {
     const container = document.getElementById('container');
     if (container) {
-      container.innerHTML = '<div id="annotation" class="annotation"></div>';
+      container.innerHTML =
+        '<div id="annotation" class="annotation"></div><div id="tooltip" class="tooltip"></div>';
     }
     const chart = new Chart({
       container: 'container',
-      autoFit: true,
-      padding: [60, 60, 60, 60],
+      width: chartW,
+      height: chartH,
+      padding: [PaddingTop, PaddingRight, PaddingBottom, PaddingLeft],
       renderer: 'svg',
     });
-    chart
-      .interval({
-        sortable: true,
-        visible: true,
-      })
-      .position('dutyWeek*dutyCount')
-      .shape('duty');
+    chart.interval().position('dutyWeek*dutyCount').shape('duty').size(32);
     chart.axis('dutyWeek', {
       label: {
         formatter(text: string, item: any, index: number) {
           return WeekLabel[text];
+        },
+        style: (text: string, index: number) => {
+          console.log('params: ');
+          if (index === 5 || index === 6) {
+            return {
+              stroke: 'green',
+              fontWeight: 'lighter',
+              fontFamily: 'MicrosoftYaHei',
+            };
+          } else {
+            return {
+              stroke: '#000000',
+              fontWeight: 'lighter',
+              fontFamily: 'MicrosoftYaHei',
+            };
+          }
         },
         autoEllipsis: true,
       },
@@ -181,28 +232,30 @@ const AfterRender = ({ dutyList }) => {
         line: {
           type: 'line',
           style: {
-            strokeOpacity: 0.25,
+            strokeOpacity: 0.15,
           },
         },
         alignTick: false, // 是否同刻度线对齐，如果值为 false，则会显示在两个刻度中间。
       },
     });
     chart.axis('dutyCount', {
-      position: 'left',
+      position: 'right',
+      label: {
+        formatter(text: string, item: any, index: number) {
+          if (index === 12) {
+            return '12/h';
+          }
+          return text;
+        },
+      },
       line: {
         style: {
           stroke: '#ccc',
         },
       },
       tickLine: {
-        length: 4,
+        length: 0,
         alignTick: true,
-      },
-      title: {
-        text: '小时',
-        position: 'end',
-        // offset: 10,
-        spacing: 10,
       },
       grid: {
         line: {
@@ -213,13 +266,14 @@ const AfterRender = ({ dutyList }) => {
       },
     });
     chart.scale({
+      dutyWeek: {},
       dutyCount: {
         max: 24,
         min: 0,
         tickCount: 12,
       },
     });
-    chart.coordinate().rotate(Math.PI * 0.5);
+    chart.coordinate().transpose();
     chart.legend(false);
     chart.tooltip(false);
     chart.on('afterrender', function (e) {
@@ -228,19 +282,17 @@ const AfterRender = ({ dutyList }) => {
       elements.forEach(function (elem) {
         let info = elem.getData();
         const y = elem.model.y - 8;
-        console.log('elem info: ', elem);
         const dutyTimes = mergeInterval(info.dutyTimes);
-        const idleTimes = getIdleTimes(dutyTimes);
         dutyTimes.forEach((dutyTime: [string, string]) => {
           const start = getAxisX(dutyTime[0]);
           const finish = getAxisX(dutyTime[1]);
-          html.push(`
-            <span class="annotation-item" 
-              style="top: ${y}px; left: ${start + 60}px; width: ${
-            finish - start
-          }px;">
-              ${info.dutyTitle}
-            </span>`);
+          html.push(
+            `<label class="annotation-item" style="top: ${y}px; left: ${
+              start + PaddingLeft
+            }px; width: ${finish - start}px;"><span class="annotation-text">${
+              info.dutyTitle
+            }<span></label>`,
+          );
         });
       });
       const $annotation = document.getElementById('annotation');
@@ -252,7 +304,12 @@ const AfterRender = ({ dutyList }) => {
     chart.render();
   }, [dutyList]);
 
-  return <div id="container" className="container"></div>;
+  return (
+    <div id="container" className="container">
+      <div id="annotation" className="annotation"></div>
+      <div id="tooltip" className="tooltip"></div>
+    </div>
+  );
 };
 
 function collect(doctors) {
