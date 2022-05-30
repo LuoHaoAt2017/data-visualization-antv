@@ -33,9 +33,19 @@ export default defineConfig({
               name: 'Mesg00005',
             },
             {
+              path: 'custom-label',
+              component: '@/pages/g2/custom-label',
+              name: 'Mesg00005',
+            },
+            {
               path: 'stack-histogram',
               component: '@/pages/g2/stack-histogram',
               name: 'Mesg00004',
+            },
+            {
+              path: 'after-render',
+              component: '@/pages/g2/after-render',
+              name: 'Mesg00005',
             },
           ],
         },
